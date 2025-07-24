@@ -1,8 +1,11 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 import requests
 import os
 from bitscrunch import BitsCrunchAPI
+
+load_dotenv()
 
 app = FastAPI()
 BITSCRUNCH_API_KEY = os.getenv("BITSCRUNCH_API_KEY")
