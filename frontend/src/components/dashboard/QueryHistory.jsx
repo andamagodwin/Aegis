@@ -7,7 +7,6 @@ import {
 } from '@heroicons/react/24/outline';
 import useStore from '../../store/useStore';
 
-
 const QueryHistory = () => {
   const [expandedItems, setExpandedItems] = useState(new Set());
   

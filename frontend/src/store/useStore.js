@@ -56,18 +56,28 @@ const useStore = create((set, get) => ({
   register: async (email, password, name) => {
     set({ authLoading: true, authError: null });
     try {
+      // Create account first
       const user = await authService.createAccount(email, password, name);
+      console.log('Account created:', user);
       
       // Auto-login after registration
       await authService.login(email, password);
       const currentUser = await authService.getCurrentUser();
+      console.log('User logged in:', currentUser);
       
-      // Create user profile
-      await databaseService.createUserProfile(currentUser.$id, {
-        walletAddresses: [],
-        watchlistCollections: [],
-        preferences: {}
-      });
+      // Create user profile with the user's ID
+      try {
+        const newProfile = await databaseService.createUserProfile(currentUser.$id, {
+          walletAddresses: [],
+          watchlistCollections: [],
+          preferences: {}
+        });
+        console.log('Profile created:', newProfile);
+      } catch (profileError) {
+        console.error('Failed to create profile during registration:', profileError);
+        // Don't fail the entire registration if profile creation fails
+        // We'll create it later when needed
+      }
       
       set({ 
         user: currentUser,
@@ -76,11 +86,12 @@ const useStore = create((set, get) => ({
         authError: null
       });
       
-      // Load user profile
+      // Load user profile (this will create it if it doesn't exist)
       get().loadUserProfile(currentUser.$id);
       
       return { success: true };
     } catch (error) {
+      console.error('Registration error:', error);
       set({ 
         authLoading: false, 
         authError: error.message || 'Registration failed',
@@ -146,10 +157,35 @@ const useStore = create((set, get) => ({
         profileError: null
       });
     } catch (error) {
-      set({ 
-        profileLoading: false,
-        profileError: error.message || 'Failed to load profile'
-      });
+      // If profile doesn't exist (404), create it
+      if (error.code === 404 || error.message.includes('Document not found')) {
+        console.log('Profile not found, creating new profile for user:', userId);
+        try {
+          const newProfile = await databaseService.createUserProfile(userId, {
+            walletAddresses: [],
+            watchlistCollections: [],
+            preferences: {}
+          });
+          set({ 
+            userProfile: newProfile,
+            profileLoading: false,
+            profileError: null
+          });
+          console.log('New profile created successfully');
+        } catch (createError) {
+          console.error('Failed to create profile:', createError);
+          set({ 
+            profileLoading: false,
+            profileError: createError.message || 'Failed to create profile'
+          });
+        }
+      } else {
+        console.error('Error loading profile:', error);
+        set({ 
+          profileLoading: false,
+          profileError: error.message || 'Failed to load profile'
+        });
+      }
     }
   },
 
@@ -176,10 +212,22 @@ const useStore = create((set, get) => ({
   },
 
   addWalletAddress: async (address) => {
-    const { userProfile } = get();
-    if (!userProfile) return { success: false, error: 'No profile loaded' };
+    const { userProfile, user } = get();
+    if (!user) return { success: false, error: 'User not authenticated' };
     
-    const walletAddresses = [...(userProfile.walletAddresses || [])];
+    // If no profile exists, try to load it first (this will create it if needed)
+    if (!userProfile) {
+      console.log('No profile found, attempting to load/create profile');
+      await get().loadUserProfile(user.$id);
+      // Get the updated profile after loading
+      const { userProfile: updatedProfile } = get();
+      if (!updatedProfile) {
+        return { success: false, error: 'Failed to create user profile' };
+      }
+    }
+    
+    const currentProfile = get().userProfile;
+    const walletAddresses = [...(currentProfile.walletAddresses || [])];
     if (!walletAddresses.includes(address)) {
       walletAddresses.push(address);
       return get().updateUserProfile({ walletAddresses });
@@ -188,18 +236,38 @@ const useStore = create((set, get) => ({
   },
 
   removeWalletAddress: async (address) => {
-    const { userProfile } = get();
-    if (!userProfile) return { success: false, error: 'No profile loaded' };
+    const { userProfile, user } = get();
+    if (!user) return { success: false, error: 'User not authenticated' };
     
-    const walletAddresses = (userProfile.walletAddresses || []).filter(addr => addr !== address);
+    // If no profile exists, try to load it first
+    if (!userProfile) {
+      await get().loadUserProfile(user.$id);
+      const { userProfile: updatedProfile } = get();
+      if (!updatedProfile) {
+        return { success: false, error: 'Failed to load user profile' };
+      }
+    }
+    
+    const currentProfile = get().userProfile;
+    const walletAddresses = (currentProfile.walletAddresses || []).filter(addr => addr !== address);
     return get().updateUserProfile({ walletAddresses });
   },
 
   addToWatchlist: async (collection) => {
-    const { userProfile } = get();
-    if (!userProfile) return { success: false, error: 'No profile loaded' };
+    const { userProfile, user } = get();
+    if (!user) return { success: false, error: 'User not authenticated' };
     
-    const watchlistCollections = [...(userProfile.watchlistCollections || [])];
+    // If no profile exists, try to load it first
+    if (!userProfile) {
+      await get().loadUserProfile(user.$id);
+      const { userProfile: updatedProfile } = get();
+      if (!updatedProfile) {
+        return { success: false, error: 'Failed to load user profile' };
+      }
+    }
+    
+    const currentProfile = get().userProfile;
+    const watchlistCollections = [...(currentProfile.watchlistCollections || [])];
     if (!watchlistCollections.includes(collection)) {
       watchlistCollections.push(collection);
       return get().updateUserProfile({ watchlistCollections });
@@ -208,10 +276,20 @@ const useStore = create((set, get) => ({
   },
 
   removeFromWatchlist: async (collection) => {
-    const { userProfile } = get();
-    if (!userProfile) return { success: false, error: 'No profile loaded' };
+    const { userProfile, user } = get();
+    if (!user) return { success: false, error: 'User not authenticated' };
     
-    const watchlistCollections = (userProfile.watchlistCollections || []).filter(col => col !== collection);
+    // If no profile exists, try to load it first
+    if (!userProfile) {
+      await get().loadUserProfile(user.$id);
+      const { userProfile: updatedProfile } = get();
+      if (!updatedProfile) {
+        return { success: false, error: 'Failed to load user profile' };
+      }
+    }
+    
+    const currentProfile = get().userProfile;
+    const watchlistCollections = (currentProfile.watchlistCollections || []).filter(col => col !== collection);
     return get().updateUserProfile({ watchlistCollections });
   },
 

@@ -14,6 +14,7 @@ import SmartQuery from '../components/dashboard/SmartQuery';
 import WalletManager from '../components/dashboard/WalletManager';
 import WatchlistManager from '../components/dashboard/WatchlistManager';
 import QueryHistory from '../components/dashboard/QueryHistory';
+import ProfileDebugger from '../components/debug/ProfileDebugger';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('query');
@@ -124,6 +125,7 @@ const Dashboard = () => {
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8">
           <div className="max-w-7xl mx-auto">
+            <ProfileDebugger />
             <ActiveComponent />
           </div>
         </main>

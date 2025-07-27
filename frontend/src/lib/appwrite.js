@@ -54,29 +54,45 @@ export const authService = {
 // Helper functions for database operations
 export const databaseService = {
   // User Profile operations
-  createUserProfile: (userId, data) => {
-    return databases.createDocument(
-      DATABASE_ID,
-      COLLECTIONS.USER_PROFILES,
-      userId,
-      {
+  createUserProfile: async (userId, data) => {
+    try {
+      console.log('Creating profile for user:', userId, 'with data:', data);
+      const result = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTIONS.USER_PROFILES,
         userId,
-        walletAddresses: data.walletAddresses || [],
-        watchlistCollections: data.watchlistCollections || [],
-        preferences: JSON.stringify(data.preferences || {})
-      }
-    );
+        {
+          userId,
+          walletAddresses: data.walletAddresses || [],
+          watchlistCollections: data.watchlistCollections || [],
+          preferences: JSON.stringify(data.preferences || {})
+        }
+      );
+      console.log('Profile created successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      throw error;
+    }
   },
 
-  getUserProfile: (userId) => {
-    return databases.getDocument(
-      DATABASE_ID,
-      COLLECTIONS.USER_PROFILES,
-      userId
-    ).then(doc => ({
-      ...doc,
-      preferences: doc.preferences ? JSON.parse(doc.preferences) : {}
-    }));
+  getUserProfile: async (userId) => {
+    try {
+      console.log('Fetching profile for user:', userId);
+      const doc = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.USER_PROFILES,
+        userId
+      );
+      console.log('Profile fetched successfully:', doc);
+      return {
+        ...doc,
+        preferences: doc.preferences ? JSON.parse(doc.preferences) : {}
+      };
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      throw error;
+    }
   },
 
   updateUserProfile: (userId, data) => {
@@ -122,5 +138,6 @@ export const databaseService = {
     );
   }
 };
+
 
 export default client;

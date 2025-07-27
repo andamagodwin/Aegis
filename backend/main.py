@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import os
@@ -9,6 +10,15 @@ from typing import List, Optional
 load_dotenv()
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Add your frontend URLs
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 BITSCRUNCH_API_KEY = os.getenv("BITSCRUNCH_API_KEY")
 GRADIENTAI_KEY = os.getenv("MODEL_ACCESS_KEY")
 GRADIENTAI_URL = "https://tofi3x35k5q62sti3ofx4lcu.agents.do-ai.run/api/v1/chat/completions"
