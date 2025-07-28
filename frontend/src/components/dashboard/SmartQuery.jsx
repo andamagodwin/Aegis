@@ -216,7 +216,17 @@ const SmartQuery = () => {
                             content = content.replace(/<think>[\s\S]*?<\/think>/gi, '')
                             content = content.trim()
                             
-                            return content
+                            // Format markdown-style text
+                            return content.split('\n').map((line, index) => {
+                              // Handle bold text **text**
+                              const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                              
+                              return (
+                                <div key={index} className={index > 0 ? 'mt-2' : ''}>
+                                  <span dangerouslySetInnerHTML={{ __html: formattedLine }} />
+                                </div>
+                              )
+                            })
                           })()}
                         </div>
                       )}
