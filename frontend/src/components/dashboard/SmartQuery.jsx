@@ -246,11 +246,11 @@ const SmartQuery = () => {
                       )}
                     </button>
 
-                    <div className="prose prose-sm max-w-none pr-8">
+                    <div className="max-w-none pr-8 text-left">
                       {message.type === "user" ? (
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                        <p className="whitespace-pre-wrap text-left">{message.content}</p>
                       ) : (
-                        <div className="whitespace-pre-wrap text-gray-800">
+                        <div className="whitespace-pre-wrap text-gray-800 text-left">
                           {(() => {
                             let content = typeof message.content === "string"
                               ? message.content
@@ -265,7 +265,7 @@ const SmartQuery = () => {
                               const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
                               
                               return (
-                                <div key={index} className={index > 0 ? 'mt-2' : ''}>
+                                <div key={index} className={index > 0 ? 'mt-2 text-left' : 'text-left'}>
                                   <span dangerouslySetInnerHTML={{ __html: formattedLine }} />
                                 </div>
                               )
