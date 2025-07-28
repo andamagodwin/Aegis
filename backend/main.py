@@ -239,16 +239,18 @@ async def smart_query(request: SmartQueryRequest):
     - User's watchlist collections: {user_collections} ({len(user_collections)} collections)
     
     IMPORTANT RULES:
-    1. If user asks about comparing wallets or "which wallet is better", use "wallet_comparison"
-    2. If user asks about trending/hot/performing collections, use "collection_performance"
-    3. If user asks about risk/safety/security of holdings, use "risk_analysis"
-    4. If user asks about "wallets" or "my wallets" generally, use "wallet_overview"
-    5. If user asks about a specific collection stats, use "collection_stats"
-    6. If user asks about overall portfolio/performance, use "portfolio_analysis"
-    7. Only set needs_user_input=true if the query requires specific data we don't have
-    8. For general questions about user's assets, always try to help with available data
+    1. If user asks casual greetings ("hi", "hello", "how are you") or general questions, use "general_conversation"
+    2. If user asks about comparing wallets or "which wallet is better", use "wallet_comparison"
+    3. If user asks about trending/hot/performing collections, use "collection_performance"
+    4. If user asks about risk/safety/security of holdings, use "risk_analysis"
+    5. If user asks about "wallets" or "my wallets" generally, use "wallet_overview"
+    6. If user asks about a specific collection stats, use "collection_stats"
+    7. If user asks about overall portfolio/performance, use "portfolio_analysis"
+    8. Only set needs_user_input=true if the query requires specific data we don't have
+    9. For general questions about user's assets, always try to help with available data
     
     Available actions:
+    - general_conversation: For greetings, casual chat, non-NFT questions
     - wallet_overview: Show general wallet health for all or specific wallets
     - wallet_comparison: Compare performance between multiple wallets
     - collection_stats: Show stats for specific collections
@@ -259,7 +261,7 @@ async def smart_query(request: SmartQueryRequest):
     
     Respond with JSON (no extra text):
     {{
-        "action": "wallet_overview|wallet_comparison|collection_stats|collection_performance|portfolio_analysis|risk_analysis|nft_valuation",
+        "action": "general_conversation|wallet_overview|wallet_comparison|collection_stats|collection_performance|portfolio_analysis|risk_analysis|nft_valuation",
         "target_wallet": "specific_wallet_or_first_wallet_or_null",
         "target_collection": "collection_id_or_null", 
         "reasoning": "why this action was chosen",
@@ -321,33 +323,80 @@ async def smart_query(request: SmartQueryRequest):
         data = None
         action = decision.get("action")
         
-        if action == "wallet_overview":
+        if action == "general_conversation":
+            # No data fetching needed for general conversation
+            data = {
+                "user_context": {
+                    "wallet_count": len(user_wallets),
+                    "collection_count": len(user_collections),
+                    "has_portfolio": len(user_wallets) > 0 or len(user_collections) > 0
+                }
+            }
+        
+        elif action == "wallet_overview":
             if user_wallets:
                 # Get data for the first wallet or specified wallet
                 target_wallet = decision.get("target_wallet") or user_wallets[0]
-                data = bits_api.get_wallet_health(target_wallet)
-                data["wallet_count"] = len(user_wallets)
-                data["current_wallet"] = target_wallet
+                try:
+                    wallet_data = bits_api.get_wallet_health(target_wallet)
+                    data = {
+                        "wallet_count": len(user_wallets),
+                        "current_wallet": target_wallet,
+                        "wallet_data": wallet_data,
+                        "has_data": bool(wallet_data and len(str(wallet_data).strip()) > 2)  # Check if more than just []
+                    }
+                except Exception as e:
+                    data = {
+                        "wallet_count": len(user_wallets),
+                        "current_wallet": target_wallet,
+                        "wallet_data": None,
+                        "has_data": False,
+                        "error": str(e)
+                    }
         
         elif action == "wallet_comparison":
             if len(user_wallets) >= 2:
                 # Compare up to 3 wallets for performance
-                data = {"comparison": [], "total_compared": min(len(user_wallets), 3)}
+                data = {"comparison": [], "total_compared": min(len(user_wallets), 3), "successful_fetches": 0}
                 for i, wallet in enumerate(user_wallets[:3]):
                     try:
                         wallet_data = bits_api.get_wallet_health(wallet)
+                        has_data = wallet_data and len(str(wallet_data).strip()) > 2
                         data["comparison"].append({
                             "wallet_name": f"Wallet {i+1}",
                             "address": wallet[:6] + "..." + wallet[-4:],
                             "data": wallet_data,
-                            "full_address": wallet
+                            "full_address": wallet,
+                            "has_data": has_data
                         })
+                        if has_data:
+                            data["successful_fetches"] += 1
                     except Exception as e:
-                        continue
+                        data["comparison"].append({
+                            "wallet_name": f"Wallet {i+1}",
+                            "address": wallet[:6] + "..." + wallet[-4:],
+                            "data": None,
+                            "full_address": wallet,
+                            "has_data": False,
+                            "error": str(e)
+                        })
             elif len(user_wallets) == 1:
                 # If only one wallet, show its performance over time
-                data = bits_api.get_wallet_health(user_wallets[0])
-                data["comparison_note"] = "Only one wallet available - showing detailed analysis"
+                try:
+                    wallet_data = bits_api.get_wallet_health(user_wallets[0])
+                    has_data = wallet_data and len(str(wallet_data).strip()) > 2
+                    data = {
+                        "wallet_data": wallet_data,
+                        "comparison_note": "Only one wallet available - showing detailed analysis",
+                        "has_data": has_data
+                    }
+                except Exception as e:
+                    data = {
+                        "wallet_data": None,
+                        "comparison_note": "Only one wallet available - showing detailed analysis",
+                        "has_data": False,
+                        "error": str(e)
+                    }
         
         elif action == "collection_performance":
             if user_collections:
@@ -427,16 +476,47 @@ async def smart_query(request: SmartQueryRequest):
             if decision.get("target_collection") and decision.get("target_token"):
                 data = bits_api.get_nft_valuation(decision["target_token"], decision["target_collection"])
         
-        # If no data was fetched, provide a helpful fallback
+        # If no data was fetched or data is empty, provide a helpful fallback
         if not data and user_wallets:
-            data = bits_api.get_wallet_health(user_wallets[0])
-            action = "wallet_overview"
+            try:
+                wallet_data = bits_api.get_wallet_health(user_wallets[0])
+                has_data = wallet_data and len(str(wallet_data).strip()) > 2
+                data = {
+                    "wallet_data": wallet_data,
+                    "has_data": has_data,
+                    "wallet_address": user_wallets[0][:6] + "..." + user_wallets[0][-4:]
+                }
+                action = "wallet_overview"
+            except Exception as e:
+                data = {
+                    "wallet_data": None,
+                    "has_data": False,
+                    "error": str(e),
+                    "wallet_address": user_wallets[0][:6] + "..." + user_wallets[0][-4:]
+                }
+                action = "wallet_overview"
         
         # Generate contextual response based on action type
         context_info = f"User has {len(user_wallets)} wallet(s) and {len(user_collections)} watched collection(s)."
         
         # Customize prompt based on action
-        if action == "wallet_comparison":
+        if action == "general_conversation":
+            final_prompt = f"""
+            User said: "{request.query}"
+            Context: I am Aegis, an NFT Portfolio Assistant. {context_info}
+            
+            Respond to their greeting or general question in a friendly, helpful way:
+            - Acknowledge their message warmly
+            - Briefly introduce what I can help with (NFT analysis, portfolio tracking, risk assessment)
+            - If they have wallets/collections, mention I can analyze their portfolio
+            - If they don't have any data yet, suggest they add wallet addresses or collections
+            - Keep it conversational and under 100 words
+            - Don't end with "Stay safe in the NFT market!" for casual greetings
+            
+            Be natural and helpful, like a friendly financial advisor specializing in NFTs.
+            """
+        
+        elif action == "wallet_comparison":
             final_prompt = f"""
             User asked: "{request.query}"
             Context: {context_info}
@@ -491,12 +571,22 @@ async def smart_query(request: SmartQueryRequest):
             Focus area: {decision.get('response_focus', 'general overview')}
             Data: {data}
             
-            Provide a helpful, conversational response about their {action.replace('_', ' ')}:
+            IMPORTANT: Check if the data is empty, null, or just contains "[]" or similar empty values.
+            
+            If the data is empty or shows no NFT activity:
+            - Explain that the wallet appears to have no NFT activity or data
+            - Suggest this could mean: no NFTs owned, new wallet, or privacy settings
+            - Offer to help with other wallets if they have multiple
+            - Provide general advice about getting started with NFTs
+            - Keep encouraging and helpful tone
+            
+            If the data has content:
+            - Provide a helpful, conversational response about their {action.replace('_', ' ')}
             - Be specific about the data shown
             - Highlight key insights and numbers
             - Give actionable advice if relevant
-            - Keep under 200 words
-            - End with "Stay safe in the NFT market!"
+            
+            Keep under 200 words. End with "Stay safe in the NFT market!"
             
             If the data shows multiple wallets, mention that this is from their portfolio.
             """
@@ -521,19 +611,37 @@ async def smart_query(request: SmartQueryRequest):
         }
         
     except Exception as e:
-        # Fallback response if AI fails
+        # Improved fallback response if AI fails
         if user_wallets:
             try:
                 fallback_data = bits_api.get_wallet_health(user_wallets[0])
+                
+                # Check if wallet has meaningful data
+                if fallback_data and len(str(fallback_data).strip()) > 2 and str(fallback_data) != "[]":
+                    return {
+                        "response": f"I found information about your wallet ({user_wallets[0][:6]}...{user_wallets[0][-4:]}). Here's a quick overview: {str(fallback_data)[:200]}... Stay safe in the NFT market!",
+                        "action_taken": "fallback_wallet_check",
+                        "reasoning": f"AI processing failed, showing wallet data: {str(e)}"
+                    }
+                else:
+                    return {
+                        "response": f"I checked your wallet ({user_wallets[0][:6]}...{user_wallets[0][-4:]}), but it appears to have no NFT activity or the data is currently unavailable. This could be a new wallet, or you might not have any NFTs yet. Feel free to ask about other wallets if you have multiple ones! Stay safe in the NFT market!",
+                        "action_taken": "fallback_empty_wallet",
+                        "reasoning": f"AI processing failed, wallet appears empty: {str(e)}"
+                    }
+            except Exception as wallet_error:
                 return {
-                    "response": f"I found information about your wallet. Here's a quick overview: {str(fallback_data)[:200]}... Stay safe in the NFT market!",
-                    "action_taken": "fallback_wallet_check",
-                    "reasoning": f"AI processing failed: {str(e)}"
+                    "response": f"I'm having trouble accessing your wallet data right now. This could be due to network issues or the wallet address format. Please make sure your wallet address is correct and try again in a moment. Stay safe in the NFT market!",
+                    "action_taken": "fallback_error",
+                    "reasoning": f"Both AI and wallet check failed: {str(e)}, {str(wallet_error)}"
                 }
-            except:
-                pass
         
-        return {"error": f"Smart query failed: {str(e)}"}
+        # If no wallets available
+        return {
+            "response": "I'd love to help analyze your NFT portfolio! To get started, please add your wallet address to your profile, then ask me questions like 'how are my wallets doing?' or 'show me my portfolio performance.'",
+            "action_taken": "fallback_no_wallets",
+            "reasoning": f"AI failed and no wallets available: {str(e)}"
+        }
 
 # Appwrite integration endpoints (you'll implement these)
 @app.post("/user/profile")
