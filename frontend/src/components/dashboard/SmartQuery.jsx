@@ -159,10 +159,12 @@ const SmartQuery = () => {
         <div className="max-w-4xl mx-auto p-4">
           {conversationHistory.length === 0 && !queryLoading && (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
-                <SparklesIcon className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 flex items-center justify-center mb-6">
+                <img src="/logo.svg" alt="Aegis Logo" className="w-16 h-16" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">How can I help you today?</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                How can I help you today{user?.name ? `, ${user.name}` : ''}?
+              </h2>
               <p className="text-gray-600 mb-8 max-w-md">
                 Ask me anything about your NFT portfolio, market trends, or get personalized insights.
               </p>

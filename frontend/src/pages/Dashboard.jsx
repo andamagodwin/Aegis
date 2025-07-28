@@ -165,7 +165,6 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900">Aegis</h1>
-            <p className="text-xs text-gray-500">NFT Portfolio Assistant</p>
           </div>
         </div>
       )}
