@@ -189,47 +189,6 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
       </button>
     </div>
 
-    {/* User info */}
-    <div className={`p-4 border-b border-gray-200 ${collapsed ? 'flex justify-center' : ''}`}>
-      {!collapsed ? (
-        <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-            <UserCircleIcon className="h-6 w-6 text-blue-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {user?.name || 'User'}
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              {user?.email || 'user@example.com'}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="h-10 w-10 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-          <UserCircleIcon className="h-6 w-6 text-blue-600" />
-        </div>
-      )}
-      
-      {/* User stats - only shown when expanded */}
-      {!collapsed && (
-        <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-          <div className="bg-gray-50 rounded-lg p-2">
-            <p className="text-lg font-semibold text-gray-900">
-              {userProfile?.walletAddresses?.length || 0}
-            </p>
-            <p className="text-xs text-gray-500">Wallets</p>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-2">
-            <p className="text-lg font-semibold text-gray-900">
-              {userProfile?.watchlistCollections?.length || 0}
-            </p>
-            <p className="text-xs text-gray-500">Collections</p>
-          </div>
-        </div>
-      )}
-    </div>
-
     {/* Navigation */}
     <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
       {tabs.map((tab) => {
@@ -288,21 +247,28 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
       )}
       
       {!collapsed && (
-        <button
-          className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors group"
-          onClick={() => setActiveTab('help')}
-        >
-          <QuestionMarkCircleIcon className="h-5 w-5 text-gray-500 group-hover:text-gray-700" />
-          <span className="ml-3 text-sm font-medium">Help & Support</span>
-        </button>
+        <div className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors group">
+          <div className="h-5 w-5 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+            <UserCircleIcon className="h-3 w-3 text-blue-600" />
+          </div>
+          <div className="ml-3 flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user?.name || 'User'}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              {user?.email || 'user@example.com'}
+            </p>
+          </div>
+        </div>
       )}
       {collapsed && (
         <button
           className="w-full flex items-center justify-center p-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-          title="Help"
-          onClick={() => setActiveTab('help')}
+          title={`${user?.name || 'User'} - ${user?.email || 'user@example.com'}`}
         >
-          <QuestionMarkCircleIcon className="h-6 w-6 text-gray-500" />
+          <div className="h-6 w-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+            <UserCircleIcon className="h-4 w-4 text-blue-600" />
+          </div>
         </button>
       )}
       
@@ -331,39 +297,6 @@ const MobileSidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, setSi
       <div>
         <h1 className="text-xl font-bold text-gray-900">Aegis</h1>
         <p className="text-sm text-gray-500">NFT Portfolio Assistant</p>
-      </div>
-    </div>
-
-    {/* User info */}
-    <div className="p-6 border-b border-gray-200">
-      <div className="flex items-center space-x-3">
-        <div className="h-10 w-10 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-          <UserCircleIcon className="h-6 w-6 text-blue-600" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {user?.name || 'User'}
-          </p>
-          <p className="text-xs text-gray-500 truncate">
-            {user?.email || 'user@example.com'}
-          </p>
-        </div>
-      </div>
-      
-      {/* User stats */}
-      <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-        <div className="bg-gray-50 rounded-lg p-2">
-          <p className="text-lg font-semibold text-gray-900">
-            {userProfile?.walletAddresses?.length || 0}
-          </p>
-          <p className="text-xs text-gray-500">Wallets</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-2">
-          <p className="text-lg font-semibold text-gray-900">
-            {userProfile?.watchlistCollections?.length || 0}
-          </p>
-          <p className="text-xs text-gray-500">Collections</p>
-        </div>
       </div>
     </div>
 
@@ -409,16 +342,19 @@ const MobileSidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, setSi
         <span className="ml-3 text-sm font-medium">Settings</span>
       </button>
       
-      <button
-        className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-        onClick={() => {
-          setActiveTab('help');
-          setSidebarOpen(false);
-        }}
-      >
-        <QuestionMarkCircleIcon className="h-5 w-5 text-gray-500" />
-        <span className="ml-3 text-sm font-medium">Help & Support</span>
-      </button>
+      <div className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+        <div className="h-5 w-5 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+          <UserCircleIcon className="h-3 w-3 text-blue-600" />
+        </div>
+        <div className="ml-3 flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 truncate">
+            {user?.name || 'User'}
+          </p>
+          <p className="text-xs text-gray-500 truncate">
+            {user?.email || 'user@example.com'}
+          </p>
+        </div>
+      </div>
       
       <button
         onClick={onLogout}

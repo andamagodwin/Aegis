@@ -207,6 +207,129 @@ async def get_chart_data(collection_id: str):
     }
     return chart
 
+# New enhanced endpoints using BitsCrunch V2 API
+@app.get("/market-insights")
+async def get_market_insights():
+    """Get overall NFT market analytics and trends"""
+    try:
+        return {
+            "analytics": bits_api.get_market_analytics(),
+            "holders": bits_api.get_holder_insights(),
+            "traders": bits_api.get_trader_insights(),
+            "scores": bits_api.get_market_scores()
+        }
+    except Exception as e:
+        return {"error": f"Failed to fetch market insights: {str(e)}"}
+
+@app.get("/trending-collections")
+async def get_trending_collections(blockchain: str = "ethereum", time_range: str = "24h"):
+    """Get trending NFT collections"""
+    try:
+        return bits_api.get_collection_analytics(
+            blockchain=blockchain,
+            time_range=time_range,
+            sort_by="volume",
+            limit=20
+        )
+    except Exception as e:
+        return {"error": f"Failed to fetch trending collections: {str(e)}"}
+
+@app.get("/collection-traits/{collection_id}")
+async def get_collection_traits(collection_id: str, blockchain: str = "ethereum"):
+    """Get traits and rarity data for a collection"""
+    try:
+        return bits_api.get_collection_traits(
+            contract_address=collection_id,
+            blockchain=blockchain
+        )
+    except Exception as e:
+        return {"error": f"Failed to fetch collection traits: {str(e)}"}
+
+@app.get("/whale-activity/{collection_id}")
+async def get_whale_activity(collection_id: str, blockchain: str = "ethereum"):
+    """Get whale activity for a specific collection"""
+    try:
+        return bits_api.get_collection_whales(
+            contract_address=collection_id,
+            blockchain=blockchain,
+            time_range="24h"
+        )
+    except Exception as e:
+        return {"error": f"Failed to fetch whale activity: {str(e)}"}
+
+@app.get("/marketplace-analytics")
+async def get_marketplace_analytics(blockchain: str = "ethereum"):
+    """Get marketplace analytics and performance"""
+    try:
+        return {
+            "marketplace_stats": bits_api.get_marketplace_analytics(blockchain=blockchain),
+            "marketplace_metadata": bits_api.get_marketplace_metadata()
+        }
+    except Exception as e:
+        return {"error": f"Failed to fetch marketplace analytics: {str(e)}"}
+
+@app.get("/wallet-profile/{wallet_address}")
+async def get_wallet_profile(wallet_address: str):
+    """Get comprehensive wallet profile including holdings and classifications"""
+    try:
+        return bits_api.get_wallet_profile(wallet=wallet_address)
+    except Exception as e:
+        return {"error": f"Failed to fetch wallet profile: {str(e)}"}
+
+@app.get("/collection-categories")
+async def get_collection_categories(blockchain: str = "ethereum"):
+    """Get collections organized by categories"""
+    try:
+        return bits_api.get_collection_categories(
+            blockchain=blockchain,
+            sort_by="volume",
+            limit=50
+        )
+    except Exception as e:
+        return {"error": f"Failed to fetch collection categories: {str(e)}"}
+
+@app.post("/advanced-collection-analysis")
+async def advanced_collection_analysis(request: dict):
+    """Get comprehensive collection analysis including all metrics"""
+    contract_address = request.get("contract_address")
+    blockchain = request.get("blockchain", "ethereum")
+    
+    if not contract_address:
+        return {"error": "Missing contract_address"}
+    
+    try:
+        return {
+            "analytics": bits_api.get_collection_analytics(contract_address=[contract_address], blockchain=blockchain),
+            "holders": bits_api.get_collection_holders(contract_address=[contract_address], blockchain=blockchain),  
+            "traders": bits_api.get_collection_traders(contract_address=[contract_address], blockchain=blockchain),
+            "scores": bits_api.get_collection_scores(contract_address=[contract_address], blockchain=blockchain),
+            "whales": bits_api.get_collection_whales(contract_address=[contract_address], blockchain=blockchain),
+            "washtrade": bits_api.get_collection_washtrade(contract_address=[contract_address], blockchain=blockchain),
+            "profile": bits_api.get_collection_profile(contract_address=[contract_address], blockchain=blockchain)
+        }
+    except Exception as e:
+        return {"error": f"Failed to fetch advanced collection analysis: {str(e)}"}
+
+@app.post("/advanced-wallet-analysis") 
+async def advanced_wallet_analysis(request: dict):
+    """Get comprehensive wallet analysis including all metrics"""
+    wallet_address = request.get("wallet_address")
+    blockchain = request.get("blockchain", "ethereum")
+    
+    if not wallet_address:
+        return {"error": "Missing wallet_address"}
+    
+    try:
+        return {
+            "analytics": bits_api.get_wallet_analytics(wallet=[wallet_address], blockchain=blockchain),
+            "scores": bits_api.get_wallet_scores(wallet=[wallet_address], blockchain=blockchain),
+            "traders": bits_api.get_wallet_traders(wallet=[wallet_address], blockchain=blockchain),
+            "washtrade": bits_api.get_wallet_washtrade(wallet=[wallet_address], blockchain=blockchain),
+            "profile": bits_api.get_wallet_profile(wallet=[wallet_address])
+        }
+    except Exception as e:
+        return {"error": f"Failed to fetch advanced wallet analysis: {str(e)}"}
+
 
 
 # New models for user management
@@ -241,27 +364,33 @@ async def smart_query(request: SmartQueryRequest):
     IMPORTANT RULES:
     1. If user asks casual greetings ("hi", "hello", "how are you") or general questions, use "general_conversation"
     2. If user asks about comparing wallets or "which wallet is better", use "wallet_comparison"
-    3. If user asks about trending/hot/performing collections, use "collection_performance"
+    3. If user asks about trending/hot/performing collections or "what's trending", use "market_trending"
     4. If user asks about risk/safety/security of holdings, use "risk_analysis"
     5. If user asks about "wallets" or "my wallets" generally, use "wallet_overview"
     6. If user asks about a specific collection stats, use "collection_stats"
     7. If user asks about overall portfolio/performance, use "portfolio_analysis"
-    8. Only set needs_user_input=true if the query requires specific data we don't have
-    9. For general questions about user's assets, always try to help with available data
+    8. If user asks about market insights, general NFT market, or "how's the market", use "market_insights"
+    9. If user asks about collection traits or rarity, use "collection_traits"
+    10. If user asks about whale activity or big holders, use "whale_analysis"
+    11. Only set needs_user_input=true if the query requires specific data we don't have
+    12. For general questions about user's assets, always try to help with available data
     
     Available actions:
     - general_conversation: For greetings, casual chat, non-NFT questions
     - wallet_overview: Show general wallet health for all or specific wallets
     - wallet_comparison: Compare performance between multiple wallets
     - collection_stats: Show stats for specific collections
-    - collection_performance: Show trending/performing collections from watchlist
+    - market_trending: Show trending collections and market performance
     - portfolio_analysis: Comprehensive portfolio analysis across all wallets
     - risk_analysis: Risk assessment of user's holdings and collections
+    - market_insights: General NFT market analytics and trends
+    - collection_traits: Show traits and rarity data for collections
+    - whale_analysis: Show whale activity for collections or market
     - nft_valuation: Specific NFT pricing (needs collection + token ID)
     
     Respond with JSON (no extra text):
     {{
-        "action": "general_conversation|wallet_overview|wallet_comparison|collection_stats|collection_performance|portfolio_analysis|risk_analysis|nft_valuation",
+        "action": "general_conversation|wallet_overview|wallet_comparison|collection_stats|market_trending|portfolio_analysis|risk_analysis|market_insights|collection_traits|whale_analysis|nft_valuation",
         "target_wallet": "specific_wallet_or_first_wallet_or_null",
         "target_collection": "collection_id_or_null", 
         "reasoning": "why this action was chosen",
@@ -415,6 +544,89 @@ async def smart_query(request: SmartQueryRequest):
                 # Fallback: get trending collections (you might want to implement this in BitsCrunch API)
                 data = {"message": "No watchlist collections found", "suggestion": "Add collections to your watchlist"}
         
+        elif action == "market_trending":
+            # Get trending collections and market performance
+            try:
+                data = {
+                    "trending_collections": bits_api.get_trending_collections(),
+                    "market_analytics": bits_api.get_market_insights(),
+                    "top_performers": bits_api.get_top_performing_collections()
+                }
+            except Exception as e:
+                data = {"error": f"Failed to fetch trending data: {str(e)}"}
+        
+        elif action == "market_insights":
+            print("🔍 Processing market insights request...")
+            
+            # Extract blockchain and time_range from query
+            blockchain = "ethereum"
+            time_range = "24h"
+            
+            if "polygon" in request.query.lower():
+                blockchain = "polygon"
+            elif "bsc" in request.query.lower() or "binance" in request.query.lower():
+                blockchain = "bsc"
+            
+            if "7d" in request.query.lower() or "week" in request.query.lower():
+                time_range = "7d"
+            elif "30d" in request.query.lower() or "month" in request.query.lower():
+                time_range = "30d"
+            
+            print(f"📊 Getting market insights for {blockchain} over {time_range}")
+            
+            # Get comprehensive market insights using our new method
+            try:
+                data = bits_api.get_market_insights(blockchain=blockchain, time_range=time_range)
+                print(f"🔍 Market insights response: {data}")
+                
+                # Add debugging info to data
+                data["debug_info"] = {
+                    "blockchain": blockchain,
+                    "time_range": time_range,
+                    "query": request.query,
+                    "has_marketplace_data": data.get("has_marketplace_data", False)
+                }
+                
+            except Exception as e:
+                print(f"❌ Error in market insights: {str(e)}")
+                data = {"error": f"Failed to fetch market insights: {str(e)}"}
+        
+        elif action == "collection_traits":
+            # Get traits and rarity data
+            if user_collections:
+                data = {"traits_analysis": []}
+                for collection in user_collections[:3]:
+                    try:
+                        traits_data = bits_api.get_collection_traits(collection)
+                        data["traits_analysis"].append({
+                            "collection_id": collection,
+                            "traits": traits_data
+                        })
+                    except Exception as e:
+                        continue
+            else:
+                data = {"message": "No collections available for traits analysis"}
+        
+        elif action == "whale_analysis":
+            # Get whale activity data
+            try:
+                data = {"whale_activity": []}
+                if user_collections:
+                    for collection in user_collections[:3]:
+                        try:
+                            whale_data = bits_api.get_collection_whales(collection)
+                            data["whale_activity"].append({
+                                "collection_id": collection,
+                                "whale_metrics": whale_data
+                            })
+                        except Exception as e:
+                            continue
+                else:
+                    # General market whale activity
+                    data["general_whale_activity"] = bits_api.get_market_whales()
+            except Exception as e:
+                data = {"error": f"Failed to fetch whale data: {str(e)}"}
+        
         elif action == "risk_analysis":
             # Comprehensive risk analysis
             data = {"risk_summary": {"wallets": [], "collections": []}}
@@ -543,6 +755,103 @@ async def smart_query(request: SmartQueryRequest):
             - Volume and price movements
             - Market sentiment indicators
             - Recommendations for collection management
+            Keep under 200 words. End with "Stay safe in the NFT market!"
+            """
+        
+        elif action == "market_trending":
+            final_prompt = f"""
+            User asked: "{request.query}"
+            Context: {context_info}
+            Action: Market Trending Analysis
+            Data: {data}
+            
+            Provide insights on trending collections and market performance:
+            - Top performing collections right now
+            - Market volume and activity trends
+            - Emerging opportunities
+            - What's hot in the NFT space
+            Keep under 200 words. End with "Stay safe in the NFT market!"
+            """
+        
+        elif action == "market_insights":
+            # Check if we have marketplace data and customize the prompt accordingly
+            has_marketplace_data = data.get("has_marketplace_data", False) if data else False
+            marketplace_data = data.get("marketplace_data", {}) if data else {}
+            
+            if has_marketplace_data and marketplace_data:
+                top_marketplace = marketplace_data.get("top_marketplace", {})
+                all_marketplaces = marketplace_data.get("all_marketplaces", [])
+                
+                # Create a detailed marketplace summary
+                marketplace_summary = f"Top Marketplace: {top_marketplace.get('name', 'Unknown')} with ${top_marketplace.get('volume', 0):,.2f} volume"
+                if all_marketplaces:
+                    marketplace_summary += f"\nAll Marketplaces: " + ", ".join([
+                        f"{mp.get('name', 'Unknown')} (${mp.get('volume', 0):,.2f})" 
+                        for mp in all_marketplaces[:3]
+                    ])
+                
+                final_prompt = f"""
+                User asked: "{request.query}"
+                Context: {context_info}
+                Action: NFT Market Insights with Real Marketplace Data
+                
+                CURRENT MARKETPLACE DATA:
+                {marketplace_summary}
+                Total Market Volume: ${marketplace_data.get('total_market_volume', 0):,.2f}
+                Total Market Sales: {marketplace_data.get('total_market_sales', 0):,}
+                Active Marketplaces: {marketplace_data.get('marketplace_count', 0)}
+                
+                Additional Market Data: {data}
+                
+                Based on the REAL marketplace data provided above, answer the user's specific question.
+                If they asked about "which marketplace has the best volume" or similar, reference the actual data.
+                Provide specific numbers and insights from the current market data.
+                Keep under 200 words. End with "Stay safe in the NFT market!"
+                """
+            else:
+                final_prompt = f"""
+                User asked: "{request.query}"
+                Context: {context_info}
+                Action: NFT Market Insights
+                Data: {data}
+                
+                Provide comprehensive market analysis based on available data:
+                - Overall market health and trends
+                - Trading volume and holder activity
+                - Risk indicators and wash trading metrics
+                - Market outlook and recommendations
+                
+                Note: If specific marketplace data was requested but not available, mention this limitation.
+                Keep under 200 words. End with "Stay safe in the NFT market!"
+                """
+        
+        elif action == "collection_traits":
+            final_prompt = f"""
+            User asked: "{request.query}"
+            Context: {context_info}
+            Action: Collection Traits Analysis
+            Data: {data}
+            
+            Analyze collection traits and rarity:
+            - Most valuable and rare traits
+            - Trait distribution and rarity percentages
+            - Investment opportunities based on traits
+            - Recommendations for trait-based decisions
+            Keep under 200 words. End with "Stay safe in the NFT market!"
+            """
+        
+        elif action == "whale_analysis":
+            final_prompt = f"""
+            User asked: "{request.query}"
+            Context: {context_info}
+            Action: Whale Activity Analysis
+            Data: {data}
+            
+            Analyze whale activity and large holder behavior:
+            - Major whale movements and transactions
+            - Impact on collection prices and volume
+            - Whale accumulation or distribution patterns
+            - What whale activity means for retail investors
             Keep under 200 words. End with "Stay safe in the NFT market!"
             """
         
