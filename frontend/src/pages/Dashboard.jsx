@@ -130,8 +130,8 @@ const Dashboard = () => {
             </button>
             
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm font-bold">A</span>
+              <div className="h-8 w-8 flex items-center justify-center">
+                <img src="/logo.svg" alt="Aegis Logo" className="h-8 w-8" />
               </div>
               <h1 className="text-lg font-semibold text-gray-900">Aegis</h1>
             </div>
@@ -160,8 +160,8 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
     <div className={`flex items-center p-4 border-b border-gray-200 ${collapsed ? 'justify-center' : 'justify-between'}`}>
       {!collapsed && (
         <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">A</span>
+          <div className="h-8 w-8 flex items-center justify-center">
+            <img src="/logo.svg" alt="Aegis Logo" className="h-8 w-8" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900">Aegis</h1>
@@ -171,8 +171,8 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
       )}
       
       {collapsed && (
-        <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-          <span className="text-white text-sm font-bold">A</span>
+        <div className="h-8 w-8 flex items-center justify-center">
+          <img src="/logo.svg" alt="Aegis Logo" className="h-8 w-8" />
         </div>
       )}
       
@@ -326,8 +326,8 @@ const MobileSidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, setSi
   <div className="flex flex-col h-full">
     {/* Logo */}
     <div className="flex items-center space-x-3 p-6 border-b border-gray-200">
-      <div className="h-10 w-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-        <span className="text-white text-lg font-bold">A</span>
+      <div className="h-10 w-10 flex items-center justify-center">
+        <img src="/logo.svg" alt="Aegis Logo" className="h-10 w-10" />
       </div>
       <div>
         <h1 className="text-xl font-bold text-gray-900">Aegis</h1>

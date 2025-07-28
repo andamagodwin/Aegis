@@ -15,8 +15,8 @@ const AuthGuard = ({ children }) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
-            <span className="text-white text-2xl font-bold">A</span>
+          <div className="mx-auto h-16 w-16 flex items-center justify-center mb-4">
+            <img src="/logo.svg" alt="Aegis Logo" className="h-16 w-16" />
           </div>
           <div className="flex items-center justify-center mb-4">
             <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -32,8 +32,8 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
-            <span className="text-white text-2xl font-bold">A</span>
+          <div className="mx-auto h-16 w-16 flex items-center justify-center mb-4">
+            <img src="/logo.svg" alt="Aegis Logo" className="h-16 w-16" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">
             Welcome back to Aegis
