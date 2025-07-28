@@ -159,7 +159,7 @@ const SmartQuery = () => {
   return (
     <div className="flex flex-col h-full w-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-1 bg-white sticky top-0 z-10">
+      <div className="flex items-center justify-between p-4 sticky top-0 z-10 backdrop-blur-sm bg-white/80 border-b border-white/20">
         {/* <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <SparklesIcon className="w-5 h-5 text-white" />
@@ -170,7 +170,7 @@ const SmartQuery = () => {
         {conversationHistory.length > 0 && (
           <button
             onClick={handleClearChat}
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-lg transition-all duration-200 backdrop-blur-sm"
           >
             <TrashIcon className="w-4 h-4" />
             <span>Clear chat</span>
@@ -312,7 +312,7 @@ const SmartQuery = () => {
                             style={{ animationDelay: "0.2s" }}
                           ></div>
                         </div>
-                        <span className="text-sm text-gray-500">Thinking...</span>
+                        {/* <span className="text-sm text-gray-500">Thinking...</span> */}
                       </div>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ const SmartQuery = () => {
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
               placeholder="Message NFT Assistant..."
-              className="w-full px-4 py-3 pr-12 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none shadow-sm"
+              className="w-full px-4 py-7 pr-12 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none shadow-lg"
               style={{ minHeight: "44px", maxHeight: "200px" }}
               disabled={queryLoading}
               rows={1}
@@ -365,7 +365,7 @@ const SmartQuery = () => {
             <button
               type="submit"
               disabled={!inputValue.trim() || queryLoading}
-              className={`absolute right-2 bottom-2 p-2 rounded-md transition-colors ${
+              className={`absolute right-2 bottom-8 p-2 rounded-md transition-colors ${
                 inputValue.trim()
                   ? "bg-blue-600 hover:bg-blue-700 text-white"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
