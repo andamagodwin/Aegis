@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { PaperAirplaneIcon, UserIcon, SparklesIcon, ArrowPathIcon, TrashIcon } from "@heroicons/react/24/outline"
+import { PaperAirplaneIcon, UserIcon, SparklesIcon, ArrowPathIcon, TrashIcon, ClipboardIcon, CheckIcon } from "@heroicons/react/24/outline"
 import useStore from "../../store/useStore"
 
 const SmartQuery = () => {
   const [inputValue, setInputValue] = useState("")
   const [conversationHistory, setConversationHistory] = useState([])
+  const [copiedMessageId, setCopiedMessageId] = useState(null)
   const textareaRef = useRef(null)
   const messagesEndRef = useRef(null)
   const [isAtBottom, setIsAtBottom] = useState(true)
@@ -125,6 +126,29 @@ const SmartQuery = () => {
     }
   }
 
+  const handleCopyMessage = async (messageId, content) => {
+    try {
+      let textToCopy = content
+      if (typeof content === "object" && content.response) {
+        textToCopy = content.response
+      }
+      if (typeof textToCopy === "string") {
+        // Remove <think> tags and clean up the text
+        textToCopy = textToCopy.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
+      }
+      
+      await navigator.clipboard.writeText(textToCopy)
+      setCopiedMessageId(messageId)
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedMessageId(null)
+      }, 2000)
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+    }
+  }
+
   const suggestedQueries = [
     "What's the floor price of my watched collections?",
     "Show me my most valuable NFTs",
@@ -199,13 +223,30 @@ const SmartQuery = () => {
                   )}
 
                   <div
-                    className={`rounded-xl px-4 py-3 ${
+                    className={`rounded-xl px-4 py-3 relative group ${
                       message.type === "user"
                         ? "bg-blue-600 text-white"
                         : "bg-white border border-gray-200 shadow-sm"
                     }`}
                   >
-                    <div className="prose prose-sm max-w-none">
+                    {/* Copy button */}
+                    <button
+                      onClick={() => handleCopyMessage(message.id, message.content)}
+                      className={`absolute top-2 right-2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity ${
+                        message.type === "user"
+                          ? "hover:bg-blue-700 text-blue-200 hover:text-white"
+                          : "hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                      }`}
+                      title="Copy message"
+                    >
+                      {copiedMessageId === message.id ? (
+                        <CheckIcon className="w-4 h-4" />
+                      ) : (
+                        <ClipboardIcon className="w-4 h-4" />
+                      )}
+                    </button>
+
+                    <div className="prose prose-sm max-w-none pr-8">
                       {message.type === "user" ? (
                         <p className="whitespace-pre-wrap">{message.content}</p>
                       ) : (
