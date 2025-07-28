@@ -133,15 +133,10 @@ const SmartQuery = () => {
   ]
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto bg-gray-50">
+    <div className="flex flex-col h-full max-w-5xl mx-auto bg-red-500">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <SparklesIcon className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-xl font-semibold text-gray-900">NFT Assistant</h1>
-        </div>
+      <div className="flex items-center justify-between p-4 bg-gray-50 sticky top-0 z-10">
+        
 
         {conversationHistory.length > 0 && (
           <button
@@ -307,7 +302,7 @@ const SmartQuery = () => {
       </div>
 
       {/* Input area */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+      <div className="sticky bottom-0 bg-gray-50 p-1">
         <form onSubmit={handleSubmit} className="relative">
           <textarea
             ref={textareaRef}
