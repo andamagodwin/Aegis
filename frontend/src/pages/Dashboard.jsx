@@ -66,7 +66,7 @@ const Dashboard = () => {
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component || SmartQuery;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 m-0 p-0">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -98,7 +98,7 @@ const Dashboard = () => {
       )}
 
       {/* Desktop sidebar */}
-      <div className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:border-r lg:border-gray-200 lg:bg-white transition-all duration-300 ease-in-out z-30 ${
+      <div className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:border-r lg:border-gray-200 lg:bg-white transition-all duration-300 ease-in-out z-30 ${
         sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
       }`}>
         <Sidebar 
@@ -257,7 +257,7 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
                 : 'text-gray-500 group-hover:text-gray-700'
             }`} />
             {!collapsed && (
-              <div className="ml-3 text-left">
+              <div className="ml-1 text-left">
                 <p className="text-sm font-medium">{tab.name}</p>
                 <p className="text-xs text-gray-500">{tab.description}</p>
               </div>
