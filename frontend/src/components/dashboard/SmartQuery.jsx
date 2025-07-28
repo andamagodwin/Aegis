@@ -192,8 +192,8 @@ const SmartQuery = () => {
                 <div className={`flex ${message.type === 'user' ? 'max-w-[85%]' : 'max-w-[85%]'} ${message.type === 'user' ? '' : ''}`}>
                   {message.type !== 'user' && (
                     <div className="flex-shrink-0 mr-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500">
-                        <SparklesIcon className="w-5 h-5 text-white" />
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center p-1">
+                        <img src="/logo.svg" alt="Aegis" className="w-6 h-6" />
                       </div>
                     </div>
                   )}
@@ -254,8 +254,8 @@ const SmartQuery = () => {
                 <div className="flex justify-start">
                   <div className="flex max-w-[85%]">
                     <div className="flex-shrink-0 mr-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500">
-                        <SparklesIcon className="w-5 h-5 text-white" />
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center p-1">
+                        <img src="/logo.svg" alt="Aegis" className="w-6 h-6" />
                       </div>
                     </div>
                     <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
@@ -284,8 +284,8 @@ const SmartQuery = () => {
               <div className="flex justify-start">
                 <div className="flex max-w-[85%]">
                   <div className="flex-shrink-0 mr-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500">
-                      <SparklesIcon className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500 p-1">
+                      <img src="/logo.svg" alt="Aegis" className="w-6 h-6 brightness-0 invert" />
                     </div>
                   </div>
                   <div className="bg-white border border-red-200 rounded-xl px-4 py-3 shadow-sm">
