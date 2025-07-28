@@ -187,28 +187,20 @@ const SmartQuery = () => {
           <div className="space-y-6">
             {conversationHistory.map((message) => (
               <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`flex-shrink-0 ${message.type === 'user' ? 'ml-3' : 'mr-3'}`}>
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        message.type === "user" 
-                          ? "bg-blue-600" 
-                          : "bg-gradient-to-r from-purple-500 to-pink-500"
-                      }`}
-                    >
-                      {message.type === "user" ? (
-                        <UserIcon className="w-5 h-5 text-white" />
-                      ) : (
+                <div className={`flex ${message.type === 'user' ? 'max-w-[85%]' : 'max-w-[85%]'} ${message.type === 'user' ? '' : ''}`}>
+                  {message.type !== 'user' && (
+                    <div className="flex-shrink-0 mr-3">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500">
                         <SparklesIcon className="w-5 h-5 text-white" />
-                      )}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div
                     className={`rounded-xl px-4 py-3 ${
                       message.type === "user"
-                        ? "bg-blue-600 text-white rounded-tr-none"
-                        : "bg-white border border-gray-200 rounded-tl-none shadow-sm"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white border border-gray-200 shadow-sm"
                     }`}
                   >
                     <div className="prose prose-sm max-w-none">
@@ -239,13 +231,8 @@ const SmartQuery = () => {
               <>
                 {!conversationHistory.some(msg => msg.type === "user" && msg.content === currentQuery) && (
                   <div className="flex justify-end">
-                    <div className="flex max-w-[85%] flex-row-reverse">
-                      <div className="flex-shrink-0 ml-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600">
-                          <UserIcon className="w-5 h-5 text-white" />
-                        </div>
-                      </div>
-                      <div className="bg-blue-600 text-white rounded-xl px-4 py-3 rounded-tr-none">
+                    <div className="max-w-[85%]">
+                      <div className="bg-blue-600 text-white rounded-xl px-4 py-3">
                         <p className="whitespace-pre-wrap">{currentQuery}</p>
                       </div>
                     </div>
@@ -259,7 +246,7 @@ const SmartQuery = () => {
                         <SparklesIcon className="w-5 h-5 text-white" />
                       </div>
                     </div>
-                    <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 rounded-tl-none shadow-sm">
+                    <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -289,7 +276,7 @@ const SmartQuery = () => {
                       <SparklesIcon className="w-5 h-5 text-white" />
                     </div>
                   </div>
-                  <div className="bg-white border border-red-200 rounded-xl px-4 py-3 rounded-tl-none shadow-sm">
+                  <div className="bg-white border border-red-200 rounded-xl px-4 py-3 shadow-sm">
                     <p className="text-sm text-red-800 mb-3">I encountered an error: {queryError}</p>
                     <button
                       onClick={handleRetry}
@@ -308,7 +295,7 @@ const SmartQuery = () => {
       </div>
 
       {/* Input area */}
-      <div className="bg-white border-t border-gray-200 p-4">
+      <div className="bg-white p-4">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
             <textarea
