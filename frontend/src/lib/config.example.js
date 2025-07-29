@@ -22,7 +22,7 @@ export const COLLECTIONS = {
 
 // API Configuration
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:8000',
+  baseUrl: 'https://aegis.andama.me',
   endpoints: {
     smartQuery: '/smart-query'
   }

@@ -323,7 +323,7 @@ const useStore = create((set, get) => ({
     });
     
     try {
-      const response = await fetch('http://localhost:8000/smart-query', {
+      const response = await fetch('https://aegis.andama.me/smart-query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
