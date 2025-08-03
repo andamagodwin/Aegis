@@ -14,7 +14,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "https://aegisai.andama.me/"],  # Add your frontend URLs
+    allow_origins=["https://aegisai.andama.me", "http://localhost:5173", "https://aegisai.andama.me/"],  # Add your frontend URLs
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
@@ -32,6 +32,10 @@ class QueryRequest(BaseModel):
     wallet_address: str = None
     collection_id: str = None
     token_id: str = None
+
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS test"}
     
 @app.get("/")
 async def root():
