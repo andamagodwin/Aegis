@@ -133,7 +133,7 @@ const WatchlistManager = () => {
       </form>
 
       {/* Quick Add Suggestions */}
-      {suggestedCollections.length > 0 && (
+      {/* {suggestedCollections.length > 0 && (
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-700 mb-3">Popular collections:</h3>
           <div className="flex flex-wrap gap-2">
@@ -149,7 +149,7 @@ const WatchlistManager = () => {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Watchlist */}
       <div className="space-y-3">

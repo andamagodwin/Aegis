@@ -227,7 +227,7 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
 
     {/* Bottom section */}
     <div className="mt-auto p-4 border-t border-gray-200 space-y-2">
-      {!collapsed && (
+      {/* {!collapsed && (
         <button
           className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors group"
           onClick={() => setActiveTab('settings')}
@@ -244,7 +244,7 @@ const Sidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, onLogout, c
         >
           <Cog6ToothIcon className="h-6 w-6 text-gray-500" />
         </button>
-      )}
+      )} */}
       
       {!collapsed && (
         <div className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors group">
@@ -331,7 +331,7 @@ const MobileSidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, setSi
 
     {/* Bottom section */}
     <div className="p-6 border-t border-gray-200 space-y-3">
-      <button
+      {/* <button
         className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
         onClick={() => {
           setActiveTab('settings');
@@ -340,7 +340,7 @@ const MobileSidebar = ({ user, userProfile, tabs, activeTab, setActiveTab, setSi
       >
         <Cog6ToothIcon className="h-5 w-5 text-gray-500" />
         <span className="ml-3 text-sm font-medium">Settings</span>
-      </button>
+      </button> */}
       
       <div className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
         <div className="h-5 w-5 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
