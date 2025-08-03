@@ -37,6 +37,10 @@ class QueryRequest(BaseModel):
 async def root():
     return {"message": "Welcome to Aegis NFT Portfolio Assistant!"}
 
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS test"}
+
 @app.post("/query")
 async def process_query(request: QueryRequest):
     # First, let AI determine what data is needed

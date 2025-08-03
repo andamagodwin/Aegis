@@ -141,9 +141,9 @@ const Dashboard = () => {
         </div>
 
         {/* Page content */}
-        <main className="flex-1">
-          <div className="h-full">
-            <div className="h-screen">
+        <main className="flex-1 m-0 p-0">
+          <div className="h-full m-0 p-0">
+            <div className="h-screen m-0 p-0">
               <ActiveComponent />
             </div>
           </div>

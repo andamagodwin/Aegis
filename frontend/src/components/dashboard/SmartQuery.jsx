@@ -157,9 +157,9 @@ const SmartQuery = () => {
   ]
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full m-0 p-0">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 sticky top-0 z-10 backdrop-blur-sm bg-white/80 border-b border-white/20">
+      <div className="flex items-center justify-between p-4 sticky top-0 z-10 backdrop-blur-sm bg-transparent border-b border-white/20">
         {/* <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <SparklesIcon className="w-5 h-5 text-white" />
@@ -180,7 +180,7 @@ const SmartQuery = () => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
-        <div className="max-w-4xl mx-auto p-4">
+        <div className="w-full">
           {conversationHistory.length === 0 && !queryLoading && (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] p-8 text-center">
               <div className="w-16 h-16 flex items-center justify-center mb-6">
@@ -348,8 +348,8 @@ const SmartQuery = () => {
       </div>
 
       {/* Input area */}
-      <div className="bg-white p-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-transparent p-4">
+        <div className="w-full">
           <form onSubmit={handleSubmit} className="relative">
             <textarea
               ref={textareaRef}
