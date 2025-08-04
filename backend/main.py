@@ -14,7 +14,10 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://aegisai.andama.me", "http://localhost:5173", "https://aegisai.andama.me/"],  # Add your frontend URLs
+    allow_origins=[
+        "https://aegisai.andama.me",
+        "http://localhost:5173",
+        "https://aegisai.andama.me/"],  # Add your frontend URLs
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
@@ -973,3 +976,8 @@ async def get_user_profile(user_id: str):
     # TODO: Implement Appwrite integration
     return {"user_id": user_id, "wallet_addresses": [], "watchlist_collections": []}
 
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
